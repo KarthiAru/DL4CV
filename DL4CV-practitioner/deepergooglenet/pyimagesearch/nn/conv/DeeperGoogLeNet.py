@@ -109,30 +109,22 @@ class DeeperGoogLeNet:
         '''
         # define the first branch of the inception module
         # which consists of 1x1 convolutions
-        first = DeeperGoogLeNet._conv_module(x, num1x1, (1, 1), (1, 1), chandim, reg = reg,
-            name = stage + "_first")
+        first = DeeperGoogLeNet._conv_module(x, num1x1, (1, 1), (1, 1), chanDim, reg = reg, name = stage + "_first")
 
         # define the second branch of the Inception module which
         # consists of 1x1 and 3x3 convolutions
-        second = DeeperGoogLeNet._conv_module(x, num3x3Reduce, (1, 1), (1, 1), chanDim, reg = reg,
-            name = stage + "_second1")
-        second = DeeperGoogLeNet._conv_module(second, num3x3, (3, 3), (1, 1), chanDim, reg = reg,
-            name = stage + "_second2")
+        second = DeeperGoogLeNet._conv_module(x, num3x3Reduce, (1, 1), (1, 1), chanDim, reg = reg, name = stage + "_second1")
+        second = DeeperGoogLeNet._conv_module(second, num3x3, (3, 3), (1, 1), chanDim, reg = reg, name = stage + "_second2")
 
         # define the third branch of the Inception module which
         # are our 1x1 and 5x5 convolutions
-        third = DeeperGoogleNet._conv_module(x, num5x5Reduce, (1, 1), (1, 1), chanDim, reg = reg,
-            name = stage + "_third1")
-        third = DeeperGoogLeNet._conv_module(third, num5x5, (5, 5), (1, 1), chanDim, reg = reg,
-            name = stage + "_third2")
+        third = DeeperGoogLeNet._conv_module(x, num5x5Reduce, (1, 1), (1, 1), chanDim, reg = reg, name = stage + "_third1")
+        third = DeeperGoogLeNet._conv_module(third, num5x5, (5, 5), (1, 1), chanDim, reg = reg, name = stage + "_third2")
 
         # define the fourth branch of the Inception module which
         # is the POOL projection
-        fourth = MaxPooling2D((3, 3), strides = (1, 1), padding = "same",
-            name = stage + "_pool")(x)
-        fourth = DeeperGoogLeNet._conv_module(fourth, num1x1Proj, (1, 1), (1, 1), chanDim,
-            reg = reg, name = stage + "_fourth")
-
+        fourth = MaxPooling2D((3, 3), strides = (1, 1), padding = "same", name = stage + "_pool")(x)
+        fourth = DeeperGoogLeNet._conv_module(fourth, num1x1Proj, (1, 1), (1, 1), chanDim, reg = reg, name = stage + "_fourth")
 
         # concatenate across the channel dimension
         x = concatenate([first, second, third, fourth], axis = chanDim, name = stage + "_mixed")
@@ -169,7 +161,7 @@ class DeeperGoogLeNet:
         '''
         # initialize the input shape to be "channels last" and the channels
         # dimension itself
-        inputshape = (height, width, depth)
+        inputShape = (height, width, depth)
         chanDim = -1
 
         # if we are using "channels first", udpdate the input shape
@@ -181,34 +173,21 @@ class DeeperGoogLeNet:
         # define the model input, followed by a sequence of
         # CONV -*-> POOL -·-> (CONV * 2) -*-> POOL layers
         inputs = Input(shape = inputShape)
-        x = DeeperGoogLeNet._conv_module(inputs, 64, (5, 5), (1, 1), chanDim, reg = reg,
-            name = "block1")
-        x = MaxPooling2D((3, 3), strides = (2, 2), padding = "same",
-            name = "pool1")(x)
-        x = DeeperGoogLeNet._conv_module(x, 64, (1, 1), (1, 1), chanDim, reg = reg,
-            name = "block2")
-        x = DeeperGoogLeNet._conv_module(x, 192, (3, 3), (1, 1), chanDim, reg = reg,
-            name = "block3")
-        x = MaxPooling2D((3, 3), strides = (2, 2), padding = "same",
-            name = "pool2")(x)
-        x = DeeperGoogLeNet._inception_module(x, 64, 94, 128, 16,
-            32, 32, chanDim, "3a", reg = reg)
-        x = DeeperGoogLeNet._inception_module(x, 128, 128, 192, 32,
-            96, 64, chanDim, "3b", reg = reg)
-        x = MaxPooling2D((3, 3), strides = (2, 2), padding = "same",
-            name = "pool3")
+        x = DeeperGoogLeNet._conv_module(inputs, 64, (5, 5), (1, 1), chanDim, reg = reg, name = "block1")
+        x = MaxPooling2D((3, 3), strides = (2, 2), padding = "same", name = "pool1")(x)
+        x = DeeperGoogLeNet._conv_module(x, 64, (1, 1), (1, 1), chanDim, reg = reg, name = "block2")
+        x = DeeperGoogLeNet._conv_module(x, 192, (3, 3), (1, 1), chanDim, reg = reg, name = "block3")
+        x = MaxPooling2D((3, 3), strides = (2, 2), padding = "same", name = "pool2")(x)
+        x = DeeperGoogLeNet._inception_module(x, 64, 94, 128, 16, 32, 32, chanDim, "3a", reg = reg)
+        x = DeeperGoogLeNet._inception_module(x, 128, 128, 192, 32, 96, 64, chanDim, "3b", reg = reg)
+        x = MaxPooling2D((3, 3), strides = (2, 2), padding = "same", name = "pool3")
 
         # apply five inception modules followed by a pool
-        x = DeeperGoogLeNet._inception_module(x, 192, 96, 208, 16,
-            48, 64, chanDim, "4a", reg = reg)
-        x = DeeperGoogLeNet._inception_module(x, 160, 112, 224,
-            24, 64, 64, chanDim, "4c",reg = reg)
-        x = DeeperGoogLeNet._inception_module(x, 128, 128, 256, 24,
-            64, 64, chanDim, "4d", reg = reg)
-        x = DeeperGoogLeNet._inception_module(x, 112, 144, 288, 32,
-            64, 64, chanDim, "4d", reg = teg)
-        x = DeeperGoogLeNet._inception_module(x, 256, 160, 320, 32,
-            128, 128, chanDim, "4e", reg = reg)
+        x = DeeperGoogLeNet._inception_module(x, 192, 96, 208, 16, 48, 64, chanDim, "4a", reg = reg)
+        x = DeeperGoogLeNet._inception_module(x, 160, 112, 224, 24, 64, 64, chanDim, "4b",reg = reg)
+        x = DeeperGoogLeNet._inception_module(x, 128, 128, 256, 24, 64, 64, chanDim, "4c", reg = reg)
+        x = DeeperGoogLeNet._inception_module(x, 112, 144, 288, 32, 64, 64, chanDim, "4d", reg = reg)
+        x = DeeperGoogLeNet._inception_module(x, 256, 160, 320, 32, 128, 128, chanDim, "4e", reg = reg)
         x = MaxPooling2D((3, 3), strides = (2, 2), padding = "same", name = "pool4")(x)
 
         # apply a POOL layer (average) followed by a Dropout
@@ -219,12 +198,11 @@ class DeeperGoogLeNet:
 
         # softmax classifier
         x = Flatten(name = "flatten")(x)
-        x = Dense(classes, kernel_regularizer = l2(reg),
-            name = "labels")(x)
+        x = Dense(classes, kernel_regularizer = l2(reg), name = "labels")(x)
         x = Activation("softmax", name = "softmax")(x)
 
         # create the model
-        model = Model(inputs, x, name = "deepergooglenet")
+        model = Model(inputs, x, name = "DeeperGoogLeNet")
 
 
         # return the constructed network architecture

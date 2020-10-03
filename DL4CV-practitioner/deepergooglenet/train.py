@@ -1,4 +1,7 @@
 # train.py
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
 import matplotlib
 matplotlib.use("Agg")
 
@@ -6,14 +9,14 @@ import json
 import argparse
 import keras.backend as K
 from keras.models import load_model
-from keras.optimizers import load_model
+#from keras.optimizers import load_model
 from keras.optimizers import Adam
 from config import tiny_imagenet_config as config
 from keras.preprocessing.image import ImageDataGenerator
 from pyimagesearch.nn.conv import DeeperGoogLeNet
 from pyimagesearch.io import HDF5DatasetGenerator
 from pyimagesearch.callbacks import TrainingMonitor
-from pyimagesearch.callbacks import EpochCheckpoint
+from pyimagesearch.callbacks import EpochCheckPoint
 from pyimagesearch.preprocessing import MeanPreprocessor
 from pyimagesearch.preprocessing import SimplePreprocessor
 from pyimagesearch.preprocessing import ImageToArrayPreprocessor
@@ -44,7 +47,6 @@ aug = ImageDataGenerator(
     rotation_range = 18, zoom_range = 0.15,
     width_shift_range = 0.2, height_shift_range = 0.2, shear_range = 0.15,
     horizontal_flip = True, fill_mode = "nearest")
-)
 
 # load the RGB means for the training set
 means = json.loads(open(config.DATASET_MEAN).read())
@@ -57,7 +59,7 @@ iap = ImageToArrayPreprocessor()
 # initialize the training and validationd ataset generators
 trainGen = HDF5DatasetGenerator(
     config.TRAIN_HDF5, 64, aug = aug,
-    preprocessirs = [sp, mp, iap], classes = config.NUM_CLASSES
+    preprocessors = [sp, mp, iap], classes = config.NUM_CLASSES
 )
 
 valGen = HDF5DatasetGenerator(
@@ -76,7 +78,7 @@ if args["model"] is None:
     )
 
     optimizer = Adam(1e-3)
-    model.compule(
+    model.compile(
         loss = "categorical_crossentropy", optimizer = optimizer,
         metrics = ["accuracy"]
     )
@@ -99,7 +101,7 @@ else:
 
 # construct the set of callbacks
 callbacks = [
-    EpochCheckpoint(args["checkpoints"], every = 5,
+    EpochCheckPoint(args["checkpoints"], every = 5,
         startAt = args["start_epoch"]),
     TrainingMonitor(config.FIG_PATH, jsonPath = config.JSON_PATH,
         startAt = args["start_epoch"])
@@ -108,7 +110,7 @@ callbacks = [
 # train the network
 model.fit_generator(
     trainGen.generator(),
-    steps_per_epoch = trainGen.numImgages // 64,
+    steps_per_epoch = trainGen.numImages // 64,
     validation_data = valGen.generator(),
     validation_steps = valGen.numImages // 64,
     epochs = 10,
