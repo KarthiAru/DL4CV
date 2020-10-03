@@ -180,7 +180,7 @@ class DeeperGoogLeNet:
         x = MaxPooling2D((3, 3), strides = (2, 2), padding = "same", name = "pool2")(x)
         x = DeeperGoogLeNet._inception_module(x, 64, 94, 128, 16, 32, 32, chanDim, "3a", reg = reg)
         x = DeeperGoogLeNet._inception_module(x, 128, 128, 192, 32, 96, 64, chanDim, "3b", reg = reg)
-        x = MaxPooling2D((3, 3), strides = (2, 2), padding = "same", name = "pool3")
+        x = MaxPooling2D((3, 3), strides = (2, 2), padding = "same", name = "pool3")(x)
 
         # apply five inception modules followed by a pool
         x = DeeperGoogLeNet._inception_module(x, 192, 96, 208, 16, 48, 64, chanDim, "4a", reg = reg)
